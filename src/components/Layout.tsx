@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Settings, BookOpen, DollarSign, Clock, BarChart3, Target, Calendar, Users, Download, Plus } from "lucide-react";
 import { OKRModal } from "./okr/OKRModal";
+import { ChatBot } from "./chat/ChatBot";
 
 interface SidebarItem {
   icon: any;
@@ -216,6 +217,9 @@ export function Layout() {
 
       {/* OKR Modal */}
       <OKRModal open={showOKRModal} onOpenChange={setShowOKRModal} />
+      
+      {/* ChatBot */}
+      <ChatBot />
     </div>
   );
 }

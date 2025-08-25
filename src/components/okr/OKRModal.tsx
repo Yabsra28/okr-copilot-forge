@@ -39,15 +39,22 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
   const [aiSuggestionCount, setAiSuggestionCount] = useState(0);
   const [currentAISuggestion, setCurrentAISuggestion] = useState("Retain 2,000,000 by the end of the month");
 
-  const handleObjectiveChange = (value: string) => {
-    setObjective(value);
-    if (value.length > 10) {
-      setShowAISuggestion(true);
-      setAiSuggestionCount(3);
-      generateAISuggestion();
-    } else {
-      setShowAISuggestion(false);
-    }
+  // Supervisor's key results for alignment
+  const supervisorKeyResults = [
+    "Increase customer retention rate by 15%",
+    "Reduce customer churn by 8% this quarter", 
+    "Achieve 95% customer satisfaction score",
+    "Generate 1.5M revenue from existing customers",
+    "Expand market share by 12%"
+  ];
+
+  const handleAlignmentChange = (value: string) => {
+    setAlignment(value);
+    setObjective(value); // Set selected supervisor's key result as objective
+    // Automatically show AI suggestion when objective is set
+    setShowAISuggestion(true);
+    setAiSuggestionCount(3);
+    generateAISuggestion();
   };
 
   const generateAISuggestion = () => {
@@ -129,21 +136,22 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
                 <Input
                   id="objective"
                   value={objective}
-                  onChange={(e) => handleObjectiveChange(e.target.value)}
-                  placeholder="retain 2,000,000 by the end of the month"
+                  readOnly
+                  placeholder="Select supervisor's key result to set objective"
+                  className="bg-muted"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="alignment">Alignment *</Label>
-                <Select value={alignment} onValueChange={setAlignment}>
+                <Label htmlFor="alignment">Supervisor's Key Result *</Label>
+                <Select value={alignment} onValueChange={handleAlignmentChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select alignment" />
+                    <SelectValue placeholder="Select supervisor's key result" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="company">Company OKR</SelectItem>
-                    <SelectItem value="department">Department OKR</SelectItem>
-                    <SelectItem value="team">Team OKR</SelectItem>
+                    {supervisorKeyResults.map((keyResult, index) => (
+                      <SelectItem key={index} value={keyResult}>{keyResult}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
