@@ -22,6 +22,7 @@ interface KeyResult {
   text: string;
   progress: number;
   milestones: Milestone[];
+  isAI?: boolean;
 }
 
 interface Milestone {
@@ -79,10 +80,27 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
       id: Date.now().toString(),
       text: currentAISuggestion,
       progress: 100,
-      milestones: []
+      milestones: [],
+      isAI: true
     };
     setKeyResults([...keyResults, newKeyResult]);
     setShowAISuggestion(false);
+  };
+
+  const handleRegenerateKeyResult = (id: string, prompt: string) => {
+    // Simulate AI regeneration with prompt
+    const suggestions = [
+      `Focus on ${prompt}: Retain 2,000,000 by the end of the month`,
+      `${prompt} optimization: Increase customer retention rate by 15%`,
+      `${prompt} strategy: Reduce customer churn by 8% this quarter`,
+      `${prompt} target: Achieve 95% customer satisfaction score`
+    ];
+    
+    const newSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+    
+    setKeyResults(keyResults.map(kr => 
+      kr.id === id ? { ...kr, text: newSuggestion } : kr
+    ));
   };
 
   const handleAddKeyResult = () => {
@@ -143,7 +161,7 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="alignment">Supervisor's Key Result *</Label>
+                <Label htmlFor="alignment">Alignment *</Label>
                 <Select value={alignment} onValueChange={handleAlignmentChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select supervisor's key result" />
@@ -199,10 +217,8 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
               <AISuggestionCard
                 suggestion={currentAISuggestion}
                 suggestionCount={aiSuggestionCount}
-                onRegenerate={handleRegenerateAI}
                 onAdd={handleAddAISuggestion}
                 onCancel={() => setShowAISuggestion(false)}
-                onEdit={setCurrentAISuggestion}
               />
             )}
 
@@ -215,6 +231,7 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
                   onDelete={handleDeleteKeyResult}
                   onUpdate={handleUpdateKeyResult}
                   onAddMilestone={handleAddMilestone}
+                  onRegenerate={keyResult.isAI ? handleRegenerateKeyResult : undefined}
                 />
               ))}
             </div>
