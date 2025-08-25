@@ -52,6 +52,11 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				'ai-suggestion': {
+					DEFAULT: 'hsl(var(--ai-suggestion))',
+					foreground: 'hsl(var(--ai-suggestion-foreground))'
+				},
+				'ai-icon': 'hsl(var(--ai-icon))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
