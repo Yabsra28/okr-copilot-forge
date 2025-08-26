@@ -106,9 +106,11 @@ export function Layout() {
       <div className="w-64 bg-card border-r border-border p-4 space-y-6">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">S</span>
-          </div>
+          <img 
+            src="/lovable-uploads/2d567e40-963a-4be7-aacd-f6669ccd6bdf.png" 
+            alt="Selam Logo" 
+            className="w-8 h-8 rounded-lg"
+          />
           <span className="font-semibold">SelamNew Workspace</span>
         </div>
 

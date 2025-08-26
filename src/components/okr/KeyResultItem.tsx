@@ -4,7 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Calendar, Plus, RefreshCw, Sparkles } from "lucide-react";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { X, Calendar, Plus, RefreshCw, Sparkles, CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface Milestone {
   id: string;
@@ -18,12 +22,16 @@ interface KeyResult {
   progress: number;
   milestones: Milestone[];
   isAI?: boolean;
+  weight: number;
+  deadline?: Date;
 }
 
 interface KeyResultItemProps {
   keyResult: KeyResult;
   onDelete: (id: string) => void;
   onUpdate: (id: string, text: string) => void;
+  onUpdateWeight: (id: string, weight: number) => void;
+  onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
   onAddMilestone: (keyResultId: string) => void;
   onRegenerate?: (id: string, prompt: string) => void;
 }
@@ -32,6 +40,8 @@ export function KeyResultItem({
   keyResult, 
   onDelete, 
   onUpdate, 
+  onUpdateWeight,
+  onUpdateDeadline,
   onAddMilestone,
   onRegenerate 
 }: KeyResultItemProps) {
@@ -39,12 +49,24 @@ export function KeyResultItem({
   const [editText, setEditText] = useState(keyResult.text);
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regeneratePrompt, setRegeneratePrompt] = useState("");
+  const [isEditingWeight, setIsEditingWeight] = useState(false);
+  const [editWeight, setEditWeight] = useState(keyResult.weight.toString());
 
   const handleEdit = () => {
     if (isEditing) {
       onUpdate(keyResult.id, editText);
     }
     setIsEditing(!isEditing);
+  };
+
+  const handleEditWeight = () => {
+    if (isEditingWeight) {
+      const weightValue = parseInt(editWeight);
+      if (!isNaN(weightValue) && weightValue >= 0 && weightValue <= 100) {
+        onUpdateWeight(keyResult.id, weightValue);
+      }
+    }
+    setIsEditingWeight(!isEditingWeight);
   };
 
   const handleRegenerate = () => {
@@ -104,18 +126,56 @@ export function KeyResultItem({
                 <SelectItem value="milestone">Milestone</SelectItem>
                 <SelectItem value="target">Target</SelectItem>
                 <SelectItem value="metric">Metric</SelectItem>
+                <SelectItem value="numeric">Numeric</SelectItem>
+                <SelectItem value="currency">Currency</SelectItem>
               </SelectContent>
             </Select>
             
-            <span className="text-sm font-medium">{keyResult.progress}%</span>
+            {isEditingWeight ? (
+              <Input
+                value={editWeight}
+                onChange={(e) => setEditWeight(e.target.value)}
+                className="w-16 h-8 text-xs text-center"
+                onBlur={handleEditWeight}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleEditWeight();
+                  }
+                }}
+                autoFocus
+              />
+            ) : (
+              <span 
+                className="text-sm font-medium cursor-pointer hover:bg-muted px-2 py-1 rounded"
+                onClick={handleEditWeight}
+              >
+                {keyResult.weight}%
+              </span>
+            )}
             
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
-              <Calendar className="w-4 h-4" />
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "h-8 w-8 p-0",
+                    keyResult.deadline && "text-primary"
+                  )}
+                >
+                  <Calendar className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <CalendarComponent
+                  mode="single"
+                  selected={keyResult.deadline}
+                  onSelect={(date) => onUpdateDeadline(keyResult.id, date)}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           
           {onRegenerate && (

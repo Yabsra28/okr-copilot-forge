@@ -23,6 +23,8 @@ interface KeyResult {
   progress: number;
   milestones: Milestone[];
   isAI?: boolean;
+  weight: number;
+  deadline?: Date;
 }
 
 interface Milestone {
@@ -52,10 +54,30 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
   const handleAlignmentChange = (value: string) => {
     setAlignment(value);
     setObjective(value); // Set selected supervisor's key result as objective
-    // Automatically show AI suggestion when objective is set
+    
+    // Automatically generate 3-4 AI key results
     setShowAISuggestion(true);
-    setAiSuggestionCount(3);
-    generateAISuggestion();
+    setAiSuggestionCount(4);
+    
+    // Generate multiple AI key results automatically
+    const suggestions = [
+      "Retain 2,000,000 by the end of the month",
+      "Increase customer retention rate by 15%", 
+      "Reduce customer churn by 8% this quarter",
+      "Achieve 95% customer satisfaction score"
+    ];
+    
+    const newKeyResults: KeyResult[] = suggestions.map((suggestion, index) => ({
+      id: `ai-${Date.now()}-${index}`,
+      text: suggestion,
+      progress: 100,
+      milestones: [],
+      isAI: true,
+      weight: 25,
+      deadline: undefined
+    }));
+    
+    setKeyResults(newKeyResults);
   };
 
   const generateAISuggestion = () => {
@@ -81,7 +103,9 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
       text: currentAISuggestion,
       progress: 100,
       milestones: [],
-      isAI: true
+      isAI: true,
+      weight: 25,
+      deadline: undefined
     };
     setKeyResults([...keyResults, newKeyResult]);
     setShowAISuggestion(false);
@@ -106,9 +130,11 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
   const handleAddKeyResult = () => {
     const newKeyResult: KeyResult = {
       id: Date.now().toString(),
-      text: "This is a Key Result from the AI",
+      text: "",
       progress: 100,
-      milestones: []
+      milestones: [],
+      weight: 25,
+      deadline: undefined
     };
     setKeyResults([...keyResults, newKeyResult]);
   };
@@ -121,6 +147,38 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
     setKeyResults(keyResults.map(kr => 
       kr.id === id ? { ...kr, text } : kr
     ));
+  };
+
+  const handleUpdateKeyResultWeight = (id: string, weight: number) => {
+    setKeyResults(keyResults.map(kr => 
+      kr.id === id ? { ...kr, weight } : kr
+    ));
+  };
+
+  const handleUpdateKeyResultDeadline = (id: string, deadline: Date | undefined) => {
+    setKeyResults(keyResults.map(kr => 
+      kr.id === id ? { ...kr, deadline } : kr
+    ));
+  };
+
+  const handleSaveOKR = () => {
+    // Here you would typically save to your backend/database
+    console.log('Saving OKR:', {
+      objective,
+      alignment,
+      deadline,
+      keyResults
+    });
+    
+    // For now, just close the modal
+    onOpenChange(false);
+    
+    // Reset form
+    setObjective("");
+    setAlignment("");
+    setDeadline(undefined);
+    setKeyResults([]);
+    setShowAISuggestion(false);
   };
 
   const handleAddMilestone = (keyResultId: string) => {
@@ -154,9 +212,8 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
                 <Input
                   id="objective"
                   value={objective}
-                  readOnly
-                  placeholder="Select supervisor's key result to set objective"
-                  className="bg-muted"
+                  onChange={(e) => setObjective(e.target.value)}
+                  placeholder="Select alignment or enter custom objective"
                 />
               </div>
               
@@ -230,6 +287,8 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
                   keyResult={keyResult}
                   onDelete={handleDeleteKeyResult}
                   onUpdate={handleUpdateKeyResult}
+                  onUpdateWeight={handleUpdateKeyResultWeight}
+                  onUpdateDeadline={handleUpdateKeyResultDeadline}
                   onAddMilestone={handleAddMilestone}
                   onRegenerate={keyResult.isAI ? handleRegenerateKeyResult : undefined}
                 />
@@ -243,7 +302,7 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button onClick={handleSaveOKR} className="bg-primary hover:bg-primary/90">
             Add
           </Button>
         </div>
