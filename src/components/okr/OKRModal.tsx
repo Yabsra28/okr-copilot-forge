@@ -274,7 +274,6 @@ export function OKRModal({ open, onOpenChange }: OKRModalProps) {
               <AISuggestionCard
                 suggestion={currentAISuggestion}
                 suggestionCount={aiSuggestionCount}
-                onAdd={handleAddAISuggestion}
                 onCancel={() => setShowAISuggestion(false)}
               />
             )}

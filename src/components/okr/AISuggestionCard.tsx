@@ -4,14 +4,12 @@ import { Sparkles, X } from "lucide-react";
 interface AISuggestionCardProps {
   suggestion: string;
   suggestionCount: number;
-  onAdd: () => void;
   onCancel: () => void;
 }
 
 export function AISuggestionCard({
   suggestion,
   suggestionCount,
-  onAdd,
   onCancel
 }: AISuggestionCardProps) {
   return (
@@ -46,16 +44,6 @@ export function AISuggestionCard({
         <p className="text-sm text-ai-suggestion-foreground p-2 rounded bg-ai-icon/5">
           {suggestion}
         </p>
-        
-        <div className="flex items-center justify-end">
-          <Button
-            onClick={onAdd}
-            size="sm"
-            className="h-8 text-xs bg-primary hover:bg-primary/90"
-          >
-            Add
-          </Button>
-        </div>
       </div>
     </div>
   );
